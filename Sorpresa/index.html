@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Para ti 💙</title>
+<style>
+  :root{
+    --bg1:#0b0f2a; --bg2:#1a1040; --bg3:#2a1250;
+    --c1:#38bdf8; --c2:#a78bfa; --c3:#f472b6; --c4:#fb923c;
+    --card:rgba(255,255,255,.07); --line:rgba(255,255,255,.18);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+    color:#fff; overflow:hidden;
+    background:radial-gradient(1200px 800px at 20% 10%,var(--bg3),transparent 60%),
+               radial-gradient(1000px 700px at 90% 90%,#12305a,transparent 60%),
+               linear-gradient(160deg,var(--bg1),var(--bg2));
+    background-attachment:fixed;
+  }
+  #fx{position:fixed;inset:0;z-index:1;pointer-events:none}
+  #floaters{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+  .floater{
+    position:absolute;top:0;width:var(--w);padding:6px 6px 22px;background:#fff;border-radius:4px;
+    box-shadow:0 0 24px var(--glow),0 0 60px var(--glow);opacity:.55;
+    animation:rise var(--dur) linear var(--delay) infinite;
+  }
+  .floater img{width:100%;aspect-ratio:1;object-fit:cover;display:block;border-radius:2px}
+  @keyframes rise{
+    from{transform:translate(0,110vh) rotate(var(--r))}
+    50%{transform:translate(var(--sway),50vh) rotate(calc(var(--r) * -1))}
+    to{transform:translate(0,-40vh) rotate(var(--r))}
+  }
+
+  main{position:relative;z-index:2;height:100%;display:grid;place-items:center;padding:20px}
+  .screen{display:none;width:min(560px,100%);text-align:center;animation:pop .7s cubic-bezier(.2,.9,.3,1.2)}
+  .screen.active{display:block}
+  @keyframes pop{from{opacity:0;transform:translateY(24px) scale(.96)}to{opacity:1;transform:none}}
+
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:26px;padding:34px 26px;
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    box-shadow:0 20px 60px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.04);
+  }
+  h1{
+    font-size:clamp(2rem,7vw,3.2rem);line-height:1.1;margin-bottom:14px;
+    background:linear-gradient(90deg,var(--c1),var(--c2),var(--c3),var(--c4),var(--c1));
+    background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:flow 6s linear infinite;
+  }
+  @keyframes flow{to{background-position:300% 0}}
+  h2{font-size:clamp(1.3rem,5vw,1.8rem);margin-bottom:22px;line-height:1.3}
+  p.sub{opacity:.85;line-height:1.6;margin-bottom:26px;white-space:pre-line}
+
+  .btn{
+    font:inherit;font-weight:600;color:#fff;cursor:pointer;border:0;border-radius:999px;
+    padding:14px 28px;margin:6px;
+    background:linear-gradient(120deg,var(--c1),var(--c2),var(--c3));background-size:200% 100%;
+    box-shadow:0 8px 28px rgba(167,139,250,.45);transition:transform .2s,box-shadow .2s,background-position .6s;
+  }
+  .btn:hover{transform:translateY(-3px) scale(1.04);background-position:100% 0;box-shadow:0 12px 36px rgba(244,114,182,.5)}
+  .btn:active{transform:scale(.97)}
+  .opt{display:block;width:100%;margin:10px 0;background:rgba(255,255,255,.08);border:1px solid var(--line);box-shadow:none;text-align:left;padding:15px 20px}
+  .opt:hover{background:linear-gradient(120deg,rgba(56,189,248,.35),rgba(244,114,182,.35));box-shadow:0 8px 24px rgba(0,0,0,.3)}
+  .opt.dodge{position:relative;transition:transform .25s ease}
+
+  .progress{height:6px;background:rgba(255,255,255,.12);border-radius:99px;margin-bottom:22px;overflow:hidden}
+  .progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--c1),var(--c3),var(--c4));border-radius:99px;transition:width .6s}
+  .counter{font-size:.85rem;opacity:.7;margin-bottom:8px;letter-spacing:.12em;text-transform:uppercase}
+
+  /* Modal con la imagen y el texto de cada respuesta */
+  #modal{position:fixed;inset:0;z-index:10;display:none;place-items:center;padding:20px;background:rgba(5,6,20,.75);backdrop-filter:blur(6px)}
+  #modal.show{display:grid;animation:fade .3s}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .reveal{width:min(440px,100%);text-align:center;background:linear-gradient(160deg,rgba(255,255,255,.14),rgba(255,255,255,.06));border:1px solid var(--line);border-radius:26px;padding:20px 20px 26px;animation:pop .6s cubic-bezier(.2,.9,.3,1.3);box-shadow:0 0 60px rgba(167,139,250,.4)}
+  .reveal img{width:100%;max-height:48vh;object-fit:cover;border-radius:18px;margin-bottom:16px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+  .reveal p{line-height:1.6;margin-bottom:14px;font-size:1.05rem;white-space:pre-line}
+
+  /* Final */
+  #final .card{max-height:92vh;overflow:auto}
+  .letter{line-height:1.8;text-align:left;white-space:pre-line;margin:10px 0 20px;min-height:4em}
+  .days{display:inline-block;margin:6px 0 16px;padding:10px 18px;border-radius:99px;border:1px solid var(--line);background:rgba(255,255,255,.08)}
+  .days b{font-size:1.4rem;background:linear-gradient(90deg,var(--c1),var(--c3));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .collage{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+  .collage img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;transition:transform .3s;box-shadow:0 6px 18px rgba(0,0,0,.4)}
+  .collage img:hover{transform:scale(1.08) rotate(-2deg)}
+
+  .heart{position:fixed;z-index:20;pointer-events:none;font-size:20px;animation:burst 1.4s ease-out forwards}
+  @keyframes burst{to{transform:translate(var(--dx),var(--dy)) scale(1.6) rotate(var(--rot));opacity:0}}
+  #musicBtn{position:fixed;right:14px;top:14px;z-index:30;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.1);color:#fff;font-size:20px;cursor:pointer;display:none}
+</style>
+</head>
+<body>
+
+<canvas id="fx"></canvas>
+<div id="floaters"></div>
+<button id="musicBtn" title="Música">🎵</button>
+<audio id="music" loop></audio>
+
+<main>
+  <section id="intro" class="screen active">
+    <div class="card">
+      <h1 id="introTitle"></h1>
+      <p class="sub" id="introText"></p>
+      <button class="btn" id="startBtn"></button>
+    </div>
+  </section>
+
+  <section id="quiz" class="screen">
+    <div class="card">
+      <div class="counter" id="qCounter"></div>
+      <div class="progress"><i id="bar"></i></div>
+      <h2 id="qText"></h2>
+      <div id="qOptions"></div>
+    </div>
+  </section>
+
+  <section id="final" class="screen">
+    <div class="card">
+      <h1 id="finalTitle"></h1>
+      <div class="days" id="daysBox" hidden>Llevamos juntos <b id="days">0</b> días 💙</div>
+      <div class="letter" id="letter"></div>
+      <div class="collage" id="collage"></div>
+      <button class="btn" id="againBtn">Volver a empezar 🔁</button>
+    </div>
+  </section>
+</main>
+
+<div id="modal">
+  <div class="reveal">
+    <img id="rImg" alt="">
+    <p id="rText"></p>
+    <button class="btn" id="nextBtn">Siguiente 💫</button>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   ✏️  ZONA EDITABLE — cambia aquí todo lo que quieras
+   ---------------------------------------------------------------------
+   FOTOS: súbelas a la misma carpeta que este archivo (por ejemplo una
+   carpeta "fotos/") y escribe la ruta: "fotos/nosotros1.jpg"
+   Si una foto no existe, se muestra una imagen de relleno.
+   ===================================================================== */
+const CONFIG = {
+
+  /* ---- Pantalla de inicio ---- */
+  tituloInicio: "Hola, mi amorcito bello 💙",
+  textoInicio:  "Larry preparo algo especial para ti.\nResponde unas preguntitas y descubre una sorpresa en cada una.",
+  textoBotonInicio: "Empezar ✨",
+
+  /* ---- Fecha en que empezaron (AAAA-MM-DD). Déjalo "" para ocultar el contador ---- */
+  fechaInicio: "2025-12-25",
+
+  /* ---- Música de fondo (opcional): ruta a un mp3, ej. "musica/cancion.mp3". "" = sin música ---- */
+  musica: "",
+
+  /* ---- Fotos que flotan por el fondo con estelas de colores ---- */
+  fotosFlotantes: [
+    "fotos/foto1.jpg",
+    "fotos/foto2.jpg",
+    "fotos/foto3.jpg",
+    "fotos/foto4.jpg",
+    "fotos/foto5.jpg",
+    "fotos/foto6.jpg"
+  ],
+
+  /* ---- PREGUNTAS ----
+     pregunta : el texto de la pregunta
+     opciones : las respuestas posibles (cualquiera abre la sorpresa).
+                Si una opción es { texto:"No", huye:true } el botón se
+                escapa del dedo/mouse (¡divertido para un "No"!).
+     imagen   : foto que aparece al responder
+     mensaje  : texto que aparece debajo de la foto
+     Puedes agregar o borrar bloques libremente.                        */
+  preguntas: [
+    {
+      pregunta: "¿Dónde nos conocimos?",
+      opciones: ["En el Colegio", "En SENATI", "Por un amigo", "En el parque Infantil"],
+      imagen:   "fotos/pregunta1.jpeg",
+      mensaje:  "Ese día no sabía que mi vida iba a cambiar y conoceria al amor de mi vida.\nGracias por aparecer en mi vida."
+    },
+    {
+      pregunta: "¿Cúando nacio el amor de mi vida?",
+      opciones: ["1 de Enero", "5 de Febrero", "25 de Diciembre", "15 de Mayo"],
+      imagen:   "fotos/pregunta2.jpeg",
+      mensaje:  "Ese fue el día en que nacio el amor de mi vida. El hombre mas guapo y hermoso de todos"
+    },
+    {
+      pregunta: "¿Cuando nacio Larry?",
+      opciones: ["5 de Junio", "25 de Octubre", "1 de Noviembre", "25 de Julio"],
+      imagen:   "fotos/pregunta3.jpeg",
+      mensaje:  "El 25 de Julio de 2007 naci yo, y nunca me imagine que encontraria a alguien tan maravilloso como tu."
+    },
+    {
+      pregunta: "¿Cúal es el deporte favorito de Juan?",
+      opciones: ["Futbol", "Baloncesto", { texto: "Voley", huye: true }],
+      imagen:   "fotos/pregunta4.jpeg",
+      mensaje:  "Mi amorcito loco por el voley, te amo mucho mi amor."
+    },
+    {
+      pregunta: "¿Me elegirías otra vez?",
+      opciones: ["Mil veces", "En todas las vidas", "Sin pensarlo 💍"],
+      imagen:   "fotos/pregunta5.jpeg",
+      mensaje:  "Yo también te eligiria siempre. Una y otra vez, en todas mis vidas siempre seras tú, mi unico y verdadero amor."
+    }
+  ],
+
+  /* ---- Pantalla final ---- */
+  tituloFinal: "Te amo, de verdad 💙",
+  carta:
+`Gracias por estar en mi vida, ser mi calma, mi risa y mi lugar favorito en el mundo.
+
+Gracias por cada abrazo, por cada charla, por cada beso y por estar siempre.
+Quiero seguir construyendo recuerdos contigo, hoy y todos los días.
+
+Eres lo mejor que me ha pasado.
+Con todo mi amor,
+— Larry :3`,
+  fotosFinal: [
+    "fotos/final1.jpeg",
+    "fotos/final2.jpeg",
+    "fotos/final3.jpeg",
+    "fotos/final4.jpeg",
+    "fotos/final5.jpeg",
+    "fotos/final6.jpeg"
+  ]
+};
+/* ===================== FIN DE LA ZONA EDITABLE ===================== */
+
+
+/* ---------- Utilidades ---------- */
+const $ = id => document.getElementById(id);
+const PLACEHOLDER = "data:image/svg+xml;utf8," + encodeURIComponent(
+  `<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600'>
+     <defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
+       <stop offset='0' stop-color='#38bdf8'/><stop offset='.5' stop-color='#a78bfa'/><stop offset='1' stop-color='#f472b6'/>
+     </linearGradient></defs>
+     <rect width='600' height='600' fill='url(#g)'/>
+     <text x='300' y='320' font-size='160' text-anchor='middle'>💙</text>
+     <text x='300' y='430' font-size='34' fill='white' text-anchor='middle' font-family='sans-serif'>Pon tu foto aquí</text>
+   </svg>`);
+function makeImg(src, alt = ""){
+  const img = new Image();
+  img.alt = alt; img.src = src;
+  img.onerror = () => { img.onerror = null; img.src = PLACEHOLDER; };
+  return img;
+}
+function show(id){
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  $(id).classList.add("active");
+}
+
+/* ---------- Fotos flotantes con halo de color ---------- */
+(function floaters(){
+  const colors = ["#38bdf8","#a78bfa","#f472b6","#fb923c"];
+  const box = $("floaters");
+  CONFIG.fotosFlotantes.forEach((src, i) => {
+    const f = document.createElement("div");
+    f.className = "floater";
+    const w = 80 + Math.random()*60;
+    f.style.setProperty("--w", w + "px");
+    f.style.setProperty("--glow", colors[i % colors.length]);
+    f.style.setProperty("--r", (Math.random()*30 - 15) + "deg");
+    f.style.setProperty("--sway", (Math.random()*120 - 60) + "px");
+    f.style.setProperty("--dur", (22 + Math.random()*16) + "s");
+    f.style.setProperty("--delay", (-Math.random()*30) + "s");
+    f.style.left = (4 + (i / Math.max(1, CONFIG.fotosFlotantes.length)) * 88) + "%";
+    f.appendChild(makeImg(src));
+    box.appendChild(f);
+  });
+})();
+
+/* ---------- Estelas de colores (cometas + rastro del mouse/dedo) ---------- */
+(function trails(){
+  const cv = $("fx"), ctx = cv.getContext("2d");
+  let W, H, dpr;
+  function resize(){
+    dpr = window.devicePixelRatio || 1;
+    W = cv.width = innerWidth * dpr; H = cv.height = innerHeight * dpr;
+    cv.style.width = innerWidth + "px"; cv.style.height = innerHeight + "px";
+  }
+  resize(); addEventListener("resize", resize);
+
+  const comets = [], sparks = [];
+  let hue = 190;
+
+  function spawnComet(){
+    const fromLeft = Math.random() < .5;
+    const speed = (2 + Math.random()*2.5) * dpr;
+    const angle = (Math.random()*0.7 + 0.15) * (fromLeft ? 1 : -1);
+    comets.push({
+      x: fromLeft ? -20 : W + 20,
+      y: Math.random() * H * .8,
+      vx: Math.cos(angle) * speed * (fromLeft ? 1 : -1),
+      vy: Math.sin(Math.abs(angle)) * speed,
+      hue: (hue += 47) % 360,
+      r: (2 + Math.random()*2.5) * dpr
+    });
+  }
+  setInterval(spawnComet, 900);
+  for (let i = 0; i < 3; i++) spawnComet();
+
+  function addSpark(x, y){
+    hue = (hue + 6) % 360;
+    sparks.push({ x: x*dpr, y: y*dpr, vx:(Math.random()-.5)*1.2*dpr, vy:(Math.random()-.5)*1.2*dpr, life:1, hue, r:(2+Math.random()*3)*dpr });
+  }
+  addEventListener("pointermove", e => { addSpark(e.clientX, e.clientY); addSpark(e.clientX, e.clientY); });
+
+  function frame(){
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.fillStyle = "rgba(0,0,0,.07)";
+    ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = "lighter";
+
+    for (let i = comets.length - 1; i >= 0; i--){
+      const c = comets[i];
+      c.x += c.vx; c.y += c.vy; c.vy += 0.004 * dpr;
+      ctx.shadowBlur = 18 * dpr; ctx.shadowColor = `hsl(${c.hue} 100% 60%)`;
+      ctx.fillStyle = `hsl(${c.hue} 100% 70%)`;
+      ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, 7); ctx.fill();
+      c.hue = (c.hue + .4) % 360;
+      if (c.x < -60 || c.x > W + 60 || c.y > H + 60) comets.splice(i, 1);
+    }
+    for (let i = sparks.length - 1; i >= 0; i--){
+      const s = sparks[i];
+      s.x += s.vx; s.y += s.vy; s.life -= 0.02;
+      if (s.life <= 0){ sparks.splice(i, 1); continue; }
+      ctx.shadowBlur = 12 * dpr; ctx.shadowColor = `hsl(${s.hue} 100% 60%)`;
+      ctx.fillStyle = `hsla(${s.hue},100%,70%,${s.life})`;
+      ctx.beginPath(); ctx.arc(s.x, s.y, Math.max(0.1, s.r * s.life), 0, 7); ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+/* ---------- Corazones al hacer click ---------- */
+function burst(x, y){
+  const em = ["💙","💜","💖","✨","💫","🧡"];
+  for (let i = 0; i < 14; i++){
+    const h = document.createElement("div");
+    h.className = "heart";
+    h.textContent = em[Math.floor(Math.random()*em.length)];
+    h.style.left = x + "px"; h.style.top = y + "px";
+    h.style.setProperty("--dx", (Math.random()*260 - 130) + "px");
+    h.style.setProperty("--dy", (-Math.random()*220 - 40) + "px");
+    h.style.setProperty("--rot", (Math.random()*120 - 60) + "deg");
+    document.body.appendChild(h);
+    setTimeout(() => h.remove(), 1500);
+  }
+}
+addEventListener("pointerdown", e => burst(e.clientX, e.clientY));
+
+/* ---------- Música ---------- */
+const music = $("music"), musicBtn = $("musicBtn");
+if (CONFIG.musica){
+  music.src = CONFIG.musica; musicBtn.style.display = "block";
+  musicBtn.onclick = () => { if (music.paused){ music.play(); musicBtn.textContent = "🎵"; } else { music.pause(); musicBtn.textContent = "🔇"; } };
+}
+
+/* ---------- Flujo principal ---------- */
+let idx = 0;
+
+$("introTitle").textContent = CONFIG.tituloInicio;
+$("introText").textContent  = CONFIG.textoInicio;
+$("startBtn").textContent   = CONFIG.textoBotonInicio;
+
+$("startBtn").onclick = () => {
+  if (CONFIG.musica) music.play().catch(() => {});
+  idx = 0; show("quiz"); renderQuestion();
+};
+
+function renderQuestion(){
+  const q = CONFIG.preguntas[idx];
+  $("qCounter").textContent = `Pregunta ${idx + 1} de ${CONFIG.preguntas.length}`;
+  $("bar").style.width = (idx / CONFIG.preguntas.length * 100) + "%";
+  $("qText").textContent = q.pregunta;
+  const box = $("qOptions"); box.innerHTML = "";
+  q.opciones.forEach(o => {
+    const opt = typeof o === "string" ? { texto: o } : o;
+    const b = document.createElement("button");
+    b.className = "btn opt"; b.textContent = opt.texto;
+    if (opt.huye) makeDodge(b); else b.onclick = e => answer(q, e);
+    box.appendChild(b);
+  });
+  $("quiz").classList.remove("active"); void $("quiz").offsetWidth; $("quiz").classList.add("active");
+}
+
+/* Botón que se escapa (hasta 6 veces, luego se deja atrapar) */
+function makeDodge(b){
+  let dodges = 0;
+  b.classList.add("dodge");
+  const run = ev => {
+    if (dodges >= 6) return;
+    ev.preventDefault(); dodges++;
+    b.style.transform = `translate(${Math.random()*160 - 80}px, ${Math.random()*120 - 60}px) rotate(${Math.random()*14 - 7}deg)`;
+    if (dodges === 6) b.textContent = "Ok, ya me atrapaste 😅";
+  };
+  b.addEventListener("pointerenter", run);
+  b.addEventListener("touchstart", run, { passive: false });
+  b.addEventListener("click", e => answer(CONFIG.preguntas[idx], e));
+}
+
+function answer(q, e){
+  burst(e.clientX, e.clientY);
+  $("rImg").src = ""; $("rImg").onerror = function(){ this.onerror = null; this.src = PLACEHOLDER; };
+  $("rImg").src = q.imagen;
+  $("rText").textContent = q.mensaje;
+  $("nextBtn").textContent = (idx === CONFIG.preguntas.length - 1) ? "Ver sorpresa final 💌" : "Siguiente 💫";
+  $("modal").classList.add("show");
+}
+
+$("nextBtn").onclick = () => {
+  $("modal").classList.remove("show");
+  idx++;
+  if (idx < CONFIG.preguntas.length) renderQuestion();
+  else { $("bar").style.width = "100%"; showFinal(); }
+};
+
+function showFinal(){
+  show("final");
+  $("finalTitle").textContent = CONFIG.tituloFinal;
+
+  // Contador de días juntos
+  if (CONFIG.fechaInicio){
+    const d = Math.max(0, Math.floor((Date.now() - new Date(CONFIG.fechaInicio + "T00:00:00")) / 86400000));
+    if (!isNaN(d)){ $("daysBox").hidden = false; $("days").textContent = d.toLocaleString("es"); }
+  }
+
+  // Collage
+  const col = $("collage"); col.innerHTML = "";
+  CONFIG.fotosFinal.forEach(src => col.appendChild(makeImg(src)));
+
+  // Carta con efecto máquina de escribir
+  const el = $("letter"); el.textContent = "";
+  let i = 0; const text = CONFIG.carta;
+  (function type(){
+    el.textContent = text.slice(0, ++i);
+    if (i < text.length) setTimeout(type, 38);
+  })();
+  for (let k = 0; k < 6; k++) setTimeout(() => burst(Math.random()*innerWidth, innerHeight*.6), k*250);
+}
+
+$("againBtn").onclick = () => { idx = 0; show("intro"); };
+</script>
+</body>
+</html>
